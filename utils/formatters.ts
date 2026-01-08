@@ -1,10 +1,22 @@
 
 export const formatNumber = (num: number): string => {
+  if (num >= 1000000000000) {
+    const val = num / 1000000000000;
+    return val >= 10 ? Math.floor(val) + 'T' : val.toFixed(1).replace(/\.0$/, '') + 'T';
+  }
+  if (num >= 1000000000) {
+    const val = num / 1000000000;
+    return val >= 10 ? Math.floor(val) + 'B' : val.toFixed(1).replace(/\.0$/, '') + 'B';
+  }
   if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    const val = num / 1000000;
+    return val >= 10 ? Math.floor(val) + 'M' : val.toFixed(1).replace(/\.0$/, '') + 'M';
   }
   if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    const val = num / 1000;
+    // Se for maior que 10k, não mostra decimal para ficar mais limpo (ex: 542k)
+    // Se for menor que 10k, mostra uma casa (ex: 1.2k)
+    return val >= 10 ? Math.floor(val) + 'k' : val.toFixed(1).replace(/\.0$/, '') + 'k';
   }
   return num.toString();
 };

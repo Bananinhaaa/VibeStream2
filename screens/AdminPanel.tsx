@@ -12,7 +12,8 @@ interface AdminPanelProps {
   onClose: () => void;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ accounts, videos, onUpdateStats, onDeleteAccount, onClose, onUpdateVideoStats }) => {
+// Fixed: Destructured onDeleteAccount from the props object
+const AdminPanel: React.FC<AdminPanelProps> = ({ accounts, videos, onUpdateStats, onClose, onUpdateVideoStats, onDeleteAccount }) => {
   const [activeTab, setActiveTab] = useState<'accounts' | 'videos'>('accounts');
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [editingVideo, setEditingVideo] = useState<string | null>(null);
@@ -35,11 +36,17 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ accounts, videos, onUpdateStats
     setEditingUser(null);
   };
 
+  const handleSaveVideo = (videoId: string) => {
+    onUpdateVideoStats(videoId, editForm);
+    setEditingVideo(null);
+  };
+
   const handleConfirmBan = (username: string) => {
     if (!banReason.trim()) {
       alert("Por favor, escreva o motivo do banimento.");
       return;
     }
+    // Fixed: onDeleteAccount is now accessible from destructured props
     onDeleteAccount(username, banReason);
     setShowBanConfirm(null);
     setBanReason('');
@@ -56,8 +63,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ accounts, videos, onUpdateStats
       </header>
 
       <div className="flex gap-4 mb-10">
-        <button onClick={() => setActiveTab('accounts')} className={`flex-1 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'accounts' ? 'bg-indigo-600 shadow-lg shadow-indigo-600/30' : 'bg-white/5 opacity-50'}`}>Contas ({accounts.length})</button>
-        <button onClick={() => setActiveTab('videos')} className={`flex-1 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'videos' ? 'bg-indigo-600 shadow-lg shadow-indigo-600/30' : 'bg-white/5 opacity-50'}`}>Vídeos ({videos.length})</button>
+        <button onClick={() => { setActiveTab('accounts'); setEditingUser(null); setEditingVideo(null); }} className={`flex-1 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'accounts' ? 'bg-indigo-600 shadow-lg shadow-indigo-600/30' : 'bg-white/5 opacity-50'}`}>Contas ({accounts.length})</button>
+        <button onClick={() => { setActiveTab('videos'); setEditingUser(null); setEditingVideo(null); }} className={`flex-1 py-4 rounded-3xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'videos' ? 'bg-indigo-600 shadow-lg shadow-indigo-600/30' : 'bg-white/5 opacity-50'}`}>Vídeos ({videos.length})</button>
       </div>
 
       {activeTab === 'accounts' ? (
@@ -85,6 +92,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ accounts, videos, onUpdateStats
                    <button onClick={() => { setEditingUser(acc.profile.username); setEditForm({ ...acc.profile, password: acc.password }); }} className="px-6 py-2 bg-indigo-600/20 text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 active:scale-95 transition-all">Configurar</button>
                    {acc.email !== 'davielucas914@gmail.com' && (
                      <button 
+                       // Fixed: onDeleteAccount is now properly defined from props destructuring
                        onClick={() => acc.profile.isBanned ? onDeleteAccount(acc.profile.username) : setShowBanConfirm(acc.profile.username)} 
                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border active:scale-95 transition-all ${acc.profile.isBanned ? 'bg-emerald-600/20 text-emerald-400 border-emerald-500/20' : 'bg-rose-600/20 text-rose-400 border-rose-500/20'}`}
                      >
@@ -116,7 +124,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ accounts, videos, onUpdateStats
               )}
 
               {editingUser === acc.profile.username && (
-                <div className="bg-black/40 p-8 rounded-[3rem] grid grid-cols-2 gap-6 border border-white/5">
+                <div className="bg-black/40 p-8 rounded-[3rem] grid grid-cols-2 gap-6 border border-white/5 animate-view">
                    <div className="col-span-2 space-y-4">
                       <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Senha Forçada</label>
                       <input type="text" value={editForm.password} onChange={e => setEditForm({...editForm, password: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm font-black text-rose-500 outline-none" />
@@ -158,6 +166,67 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ accounts, videos, onUpdateStats
                    </div>
                    <button onClick={() => { setEditingVideo(video.id); setEditForm(video); }} className="px-6 py-4 bg-indigo-600/20 text-indigo-400 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 active:scale-95 transition-all shrink-0">Editar</button>
                 </div>
+
+                {editingVideo === video.id && (
+                  <div className="bg-black/40 p-8 rounded-[3rem] grid grid-cols-2 gap-6 border border-white/5 animate-view">
+                    <div className="col-span-2 space-y-2">
+                       <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Descrição / Legenda</label>
+                       <textarea 
+                         value={editForm.description} 
+                         onChange={e => setEditForm({...editForm, description: e.target.value})} 
+                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none h-24 resize-none focus:border-indigo-500" 
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black uppercase text-gray-500 text-center block tracking-widest">Likes</label>
+                       <input 
+                         type="number" 
+                         value={editForm.likes} 
+                         onChange={e => setEditForm({...editForm, likes: parseInt(e.target.value) || 0})} 
+                         className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm font-black text-center outline-none" 
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black uppercase text-gray-500 text-center block tracking-widest">Shares</label>
+                       <input 
+                         type="number" 
+                         value={editForm.shares} 
+                         onChange={e => setEditForm({...editForm, shares: parseInt(e.target.value) || 0})} 
+                         className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm font-black text-center outline-none" 
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black uppercase text-gray-500 text-center block tracking-widest">Republicações</label>
+                       <input 
+                         type="number" 
+                         value={editForm.reposts} 
+                         onChange={e => setEditForm({...editForm, reposts: parseInt(e.target.value) || 0})} 
+                         className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm font-black text-center outline-none" 
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black uppercase text-gray-500 text-center block tracking-widest">Música</label>
+                       <input 
+                         type="text" 
+                         value={editForm.music} 
+                         onChange={e => setEditForm({...editForm, music: e.target.value})} 
+                         className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm font-black text-center outline-none" 
+                       />
+                    </div>
+                    <button 
+                      onClick={() => handleSaveVideo(video.id)} 
+                      className="col-span-2 bg-white text-black py-5 rounded-3xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all"
+                    >
+                      Salvar Vídeo
+                    </button>
+                    <button 
+                      onClick={() => setEditingVideo(null)} 
+                      className="col-span-2 bg-white/5 text-gray-500 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em]"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                )}
              </div>
            ))}
         </div>

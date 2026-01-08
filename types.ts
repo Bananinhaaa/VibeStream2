@@ -5,7 +5,7 @@ export interface Comment {
   displayName: string;
   avatar: string;
   text: string;
-  timestamp: number; // Alterado de string para number
+  timestamp: number;
   likes: number;
   isLikedByMe?: boolean;
   isVerified?: boolean;
@@ -32,14 +32,15 @@ export interface Video {
 
 export interface Notification {
   id: string;
-  type: 'follow' | 'like' | 'comment' | 'repost' | 'mention' | 'reply';
+  type: 'follow' | 'like' | 'comment' | 'repost' | 'mention' | 'reply' | 'security';
   fromUser: string;
   fromAvatar: string;
   timestamp: number;
   text: string;
-  videoId?: string; // ID do vídeo relacionado
+  videoId?: string;
 }
 
+// Added ChatMessage interface to fix the "no exported member" error in App.tsx and Inbox.tsx
 export interface ChatMessage {
   id: string;
   sender: string;
@@ -63,6 +64,7 @@ export interface UserProfile {
   isAdmin?: boolean;
   isBanned?: boolean;
   banReason?: string;
+  twoFactorEnabled?: boolean; // Novo campo de segurança
   repostedVideoIds: string[];
   notifications: Notification[];
 }

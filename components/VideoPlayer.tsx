@@ -4,6 +4,7 @@ import { Video, UserProfile } from '../types';
 import { HeartIcon, CommentIcon, ShareIcon, RepostIcon, MusicIcon, VerifiedBadge } from './Icons';
 import CommentsDrawer from './CommentsDrawer';
 import { renderWithMentions } from '../utils/mentionHelper';
+import { formatNumber } from '../utils/formatters';
 
 interface VideoPlayerProps {
   video: Video;
@@ -82,28 +83,28 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <div className="p-2 transition-transform group-active/btn:scale-125">
             <HeartIcon liked={video.isLiked} />
           </div>
-          <span className="text-[10px] font-black mt-1 drop-shadow-lg">{video.likes}</span>
+          <span className="text-[10px] font-black mt-1 drop-shadow-lg">{formatNumber(video.likes)}</span>
         </button>
         
         <button onClick={() => setIsCommentsOpen(true)} className="flex flex-col items-center group/btn">
           <div className="p-2 transition-transform group-active/btn:scale-125">
             <CommentIcon />
           </div>
-          <span className="text-[10px] font-black mt-1 drop-shadow-lg">{video.comments.length}</span>
+          <span className="text-[10px] font-black mt-1 drop-shadow-lg">{formatNumber(video.comments.length)}</span>
         </button>
 
         <button onClick={() => onRepost(video.id)} className="flex flex-col items-center group/btn">
           <div className="p-2 transition-transform group-active/btn:scale-125">
             <RepostIcon active={isRepostedByMe} />
           </div>
-          <span className="text-[10px] font-black mt-1 drop-shadow-lg">{video.reposts}</span>
+          <span className="text-[10px] font-black mt-1 drop-shadow-lg">{formatNumber(video.reposts)}</span>
         </button>
 
         <button onClick={() => onShare(video.id)} className="flex flex-col items-center group/btn">
           <div className="p-2 transition-transform group-active/btn:scale-125">
             <ShareIcon />
           </div>
-          <span className="text-[10px] font-black mt-1 drop-shadow-lg">{video.shares}</span>
+          <span className="text-[10px] font-black mt-1 drop-shadow-lg">{formatNumber(video.shares)}</span>
         </button>
 
         <div className="w-12 h-12 rounded-full border-4 border-white/10 bg-zinc-900 flex items-center justify-center animate-spin-slow">
