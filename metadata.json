@@ -1,0 +1,8 @@
+{
+  "name": "vibestream",
+  "description": "Rede social de vídeos curtos de alta performance com interações sociais e IA Gemini.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
